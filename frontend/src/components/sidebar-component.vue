@@ -12,7 +12,7 @@
                     </b-input>
                 </b-field>
                 <b-field label="Target" :label-position="'on-border'">
-                    <b-select :expanded="true" v-model="modelTarget" @input="checkmodelTask" size="is-small">
+                    <b-select :expanded="true" v-model="modelTarget" size="is-small">
                         <option v-for="option in columns" :value="option" :key="option">
                             {{ option }}
                         </option>
@@ -103,6 +103,7 @@ export default {
         const settings = settingStore()
 
         return { settings }
+
     },
     components: {
         UploadComponent, BButton, BSelect, BField, BInput, BCheckbox
@@ -169,10 +170,7 @@ export default {
         },
         upload() {
             let formdata = new FormData();
-            this.settings.rawData
             formdata.append('file', this.file);
-            console.log(this.file);
-
             axios.post('http://127.0.0.1:5000/upload', formdata, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -235,7 +233,7 @@ export default {
 
         },
         checkmodelTask() {
-            this.settings.setTarget(this.modelTarget)
+            this.settings.setTarget(this.modelTarget);
             let targetFeature = this.settings.items.find(feature => feature.name == this.modelTarget);
             if (!targetFeature.selected) {
                 let message = 'Target is not selected'
@@ -249,7 +247,10 @@ export default {
                 return
             }
             this.settings.setmodelTask(targetFeature.type === FeatureCategories.Numerical.id ? false : true);
+            console.log('change target', targetFeature.type)
             this.modelOptions = targetFeature.type === FeatureCategories.Numerical.id ? Settings.regression : Settings.classification;
+            console.log('change target', this.modelOptions)
+
 
         },
         async train() {
@@ -511,7 +512,11 @@ export default {
         modelOption: function () {
             this.modelConfigurations = null
         },
-
+        modelTarget: function (newValue, oldValue) {
+            if (newValue != oldValue) {
+                this.checkmodelTask()
+            }
+        }
 
     }
 }
