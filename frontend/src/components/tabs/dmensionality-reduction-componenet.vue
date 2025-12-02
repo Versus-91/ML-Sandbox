@@ -51,8 +51,7 @@
         <div class="message is-info">
             <div class="message-header p-2">t-distributed stochastic neighbor embedding</div>
             <div class="message-body">
-
-                <b-field grouped>
+                <b-field grouped style="overflow-x:scroll;">
                     <b-field label="Number of Components" :label-position="'on-border'">
                         <b-input v-model="componentsTSNE" size="is-small" type="number"
                             placeholder="Components"></b-input>
@@ -76,9 +75,10 @@
         <div class="message is-info">
             <div class="message-header p-2">Autoencoder</div>
             <div class="message-body">
+                <div class="columns is-multiline">
+                    <div class="column is-12" style="overflow-x:scroll;">
                 <b-field grouped>
                     <b-field expanded>
-
                         <b-field label="Hidden layers size" :label-position="'on-border'">
                             <b-input v-model="hiddenLayerSize" size="is-small" type="number"
                                 placeholder="Hidden layer size"></b-input>
@@ -132,10 +132,12 @@
                         </b-field>
                     </b-field>
                 </b-field>
+            </div>
                 <div class="column is-6" id="dimensionality_reduction_panel_tsne">
                     <div id="autoencoder" style="height: 300px;">
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </section>
