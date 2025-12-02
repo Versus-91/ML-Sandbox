@@ -2727,6 +2727,7 @@ export class ChartController {
         });
     }
     async plotPDPRegression(id, averages, grids, labels, columns, categoricals) {
+        let danfo = await getDanfo()
 
         let pfiChartId = 'pfi_boxplot_' + id;
         let element = document.getElementById(pfiChartId);
@@ -2750,7 +2751,7 @@ export class ChartController {
         grids.forEach((grid, i) => {
             if (!categoricals.includes(columns[i])) {
                 averages[i].forEach((average) => {
-                    let scaler = new this.danfo.MinMaxScaler();
+                    let scaler = new danfo.MinMaxScaler();
                     scaler.fit(grid)
                     // let xs = scaler.transform(grid)
                     let xs = grid
