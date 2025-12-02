@@ -334,12 +334,12 @@ export async function scale_data(dataset, column, normalization_type) {
         throw new Error('falied at data transformation.')
     }
 }
-export function applyDataTransformation(dataset, column_names, transformations) {
+export async function applyDataTransformation(dataset, column_names, transformations) {
     for (const element of column_names) {
         const column = element;
         let transformation = transformations.find(transformation => transformation.name === column)
         if (transformation) {
-            scale_data(dataset, column, transformation.scaler.toString())
+            await scale_data(dataset, column, transformation.scaler.toString())
         }
     }
     return dataset

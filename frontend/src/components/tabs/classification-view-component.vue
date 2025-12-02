@@ -13,7 +13,7 @@
                         {{ feature + ', ' }}
                     </span>
                 </p>
-                <p class="ml-2 my-1 has-text-white subtitle is-6 is-size-7">Numerical Features : <span
+                <p class="ml-2 my-1 subtitle is-6 is-size-7">Numerical Features : <span
                         v-for="feature in result.numericColumns" :key="feature">
                         {{ feature + ', ' }}
                     </span></p>

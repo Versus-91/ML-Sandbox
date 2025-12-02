@@ -1726,7 +1726,6 @@ export class ChartController {
                 if (unique_labels.length === 2) {
                     unique_labels.sort()
                 }
-                console.log('splom', unique_labels);
 
                 var colors = labels.map(label => this.indexToColor(unique_labels.indexOf(label), unique_labels.length));
                 let traces = []

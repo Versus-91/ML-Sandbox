@@ -7,13 +7,13 @@
                 </b-tooltip></div>
             <div class="message-body">
                 <div id="scatterplot_mtx"></div>
-                <button class="button is-small" @click="downlaodSPLOM()">Download plot</button>
+                <button class="button is-small my-1" @click="downlaodSPLOM()">Download plot</button>
                 <div class="columns my-1 ml-5 mt-5 is-multiline" :style="{ width: features.length * 100 + 'px' }">
                     <div :style="{ width: column_width + '%' }"
                         v-for="feature in this.settings.items.filter(column => column.selected)" :key="feature.id">
                         <b-field :label="feature.name" :label-position="'on-border'" v-if="feature.type == 1"
                             class="ml-1">
-                            <b-select @input="scaleData()" size="is-small" v-model="feature.scaler">
+                            <b-select @change="scaleData()" size="is-small" v-model="feature.scaler">
                                 <option v-for="option in ScaleOptions" :value="option.id" :key="option.id">
                                     {{ option.name }}
                                 </option>
@@ -28,13 +28,13 @@
                     </parallel-coordinate-plot-component>
                 </div>
                 <div class="column is-12" v-if="this.settings.isClassification">
-                    <h5 class="title is-7 has-text-left">Merge classes
+                    <h5 class="title is-7 has-text-left">Merge Classes
                     </h5>
                     <b-table class="is-size-7" :data="classesInfo" :columns="classesInfoColumns" checkable
                         :row-class="(row, index) => row.mode <= 0.10 && 'has-text-danger'" :narrowed="true"
-                        :checked-rows.sync="selectedClasses"></b-table>
+                        v-model:checked-rows="selectedClasses"></b-table>
                     <button @click="scaleData()" class="button mt-2 is-info is-small"
-                        :disabled="selectedClasses?.length >= classesInfo?.length">Merge
+                        :disabled="selectedClasses?.length <= 1 || selectedClasses?.length == classesInfo?.length">Merge
                         Classes</button>
                     <button @click="scaleData(true)" class="button mt-2 mx-1 is-success is-small">reset</button>
                 </div>
@@ -83,15 +83,16 @@ export default {
         },
         async updateClassesInfo() {
             const danfo = await getDanfo()
+            console.log('merge', this.settings.mergedClasses);
 
-            this.df = new danfo.DataFrame(this.settings.rawData);
+            let df = new danfo.DataFrame(this.settings.rawData);
             this.settings.mergedClasses.forEach((classes) => {
                 let newClass = classes.map(m => m.class).join('_');
                 classes.forEach(cls => {
-                    this.df.replace(cls.class, newClass, { columns: [this.settings.modelTarget], inplace: true })
+                    df.replace(cls.class, newClass, { columns: [this.settings.modelTarget], inplace: true })
                 });
             })
-            let targetValues = this.df.column(this.settings.modelTarget).values;
+            let targetValues = df.column(this.settings.modelTarget).values;
             let samplesLength = targetValues.length;
             let classes = new Set(...[targetValues]);
             let result = []
@@ -117,6 +118,7 @@ export default {
                 let categorical_columns = this.settings.items.filter(column => column.selected && column.type !== 1).map(column => column.name);
                 let features = numericColumns.concat(categorical_columns);
                 dataframe.dropNa({ axis: 1, inplace: true })
+                console.log(dataframe.loc({ columns: features }).values);
 
                 await this.chartController.ScatterplotMatrix(dataframe.loc({ columns: features }).values, features, dataframe.column(this.settings.modelTarget).values, categorical_columns.length,
                     this.settings.isClassification, numericColumns, categorical_columns, this.dataframe)
@@ -133,19 +135,19 @@ export default {
             }
         },
         async scaleData(reset = false) {
-            const danfo = await getDanfo()
+            console.log('scale');
 
-            this.df = new danfo.DataFrame(this.settings.rawData);
+            const danfo = await getDanfo()
+            let df = new danfo.DataFrame(this.settings.rawData);
             if (reset) {
                 this.settings.resetClassTransformations([]);
                 this.updateClassesInfo();
-                console.log(this.settings.mergedClasses);
 
             }
             if (this.settings.isClassification && this.selectedClasses?.length > 0) {
                 let newClass = this.selectedClasses.map(m => m.class).join('_');
                 this.selectedClasses.forEach(cls => {
-                    this.df.replace(cls.class, newClass, { columns: [this.settings.modelTarget], inplace: true })
+                    df.replace(cls.class, newClass, { columns: [this.settings.modelTarget], inplace: true })
                 });
                 this.settings.setClassTransformation(this.selectedClasses)
                 let message = { message: 'merged classes: ' + newClass, type: 'info' }
@@ -153,13 +155,13 @@ export default {
                 this.settings.addMessage(message)
             }
 
-
             let validTransformations = this.settings.items.filter(feature => feature.selected && feature.type === 1 && feature.scaler != 0)
             this.isLoading = true;
             window.Plotly.purge('scatterplot_mtx')
             this.updateClassesInfo()
-            applyDataTransformation(this.df, validTransformations.map(transformation => transformation.name), validTransformations);
-            await this.dispalySPLOM(this.df)
+            await applyDataTransformation(df, validTransformations.map(transformation => transformation.name), validTransformations);
+            console.log(df);
+            await this.dispalySPLOM(df)
             this.isLoading = false;
             this.selectedClasses = []
 
@@ -184,9 +186,9 @@ export default {
         async initSPLOM() {
             const danfo = await getDanfo()
 
-            this.df = new danfo.DataFrame(this.settings.rawData);
-            this.df = await this.df.sample(this.df.$data.length, { seed: this.settings.getSeed });
-            this.df.dropNa({ axis: 1, inplace: true })
+            let df = new danfo.DataFrame(this.settings.rawData);
+            df = await df.sample(df.$data.length, { seed: this.settings.getSeed });
+            df.dropNa({ axis: 1, inplace: true })
             let numericColumns = this.settings.items.filter(column => column.selected && column.type === 1).map(function (column) {
                 return { 'name': column.name, type: column.type }
             });
@@ -202,12 +204,12 @@ export default {
                     scaler: 0
                 }
             })
-            this.dispalySPLOM(this.df)
+            this.dispalySPLOM(df)
 
         }
     },
     mounted() {
-        this.chartController = new ChartController(null, null)
+        this.chartController = new ChartController()
     },
     created: async function () {
         await this.initSPLOM()
