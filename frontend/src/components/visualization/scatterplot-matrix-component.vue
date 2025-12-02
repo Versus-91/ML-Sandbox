@@ -28,13 +28,13 @@
                     </parallel-coordinate-plot-component>
                 </div>
                 <div class="column is-12" v-if="this.settings.isClassification">
-                    <h5 class="title is-7 has-text-left">Merge classes
+                    <h5 class="title is-7 has-text-left">Merge Classes
                     </h5>
                     <b-table class="is-size-7" :data="classesInfo" :columns="classesInfoColumns" checkable
                         :row-class="(row, index) => row.mode <= 0.10 && 'has-text-danger'" :narrowed="true"
-                        :checked-rows.sync="selectedClasses"></b-table>
+                        v-model:checked-rows="selectedClasses"></b-table>
                     <button @click="scaleData()" class="button mt-2 is-info is-small"
-                        :disabled="selectedClasses?.length >= classesInfo?.length">Merge
+                        :disabled="selectedClasses?.length <= 1 || selectedClasses?.length == classesInfo?.length">Merge
                         Classes</button>
                     <button @click="scaleData(true)" class="button mt-2 mx-1 is-success is-small">reset</button>
                 </div>
@@ -83,6 +83,7 @@ export default {
         },
         async updateClassesInfo() {
             const danfo = await getDanfo()
+            console.log('merge', this.settings.mergedClasses);
 
             let df = new danfo.DataFrame(this.settings.rawData);
             this.settings.mergedClasses.forEach((classes) => {
@@ -141,7 +142,6 @@ export default {
             if (reset) {
                 this.settings.resetClassTransformations([]);
                 this.updateClassesInfo();
-                console.log(this.settings.mergedClasses);
 
             }
             if (this.settings.isClassification && this.selectedClasses?.length > 0) {
