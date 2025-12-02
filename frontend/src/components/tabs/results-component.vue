@@ -1,8 +1,8 @@
 <template>
     <div>
 
-        <b-tabs v-model="activeResult" v-if="this.settings.results?.length > 0" @input="resize">
-            <b-tab-item label="Comparison" @click="compareResultsDraw()">
+        <b-tabs v-model="activeResult" v-if="this.settings.results?.length > 0" @change="resize" @update:modelValue	="compareResultsDraw()">
+            <b-tab-item label="Comparison">
                 <button v-for="(item, index) in metricsCollection" :key="index"
                     class="button is-small ml-1 is-success my-2" @click="compareResultsDraw(item)">{{
                         item.name + '-' + (item.task ? 'cls' : 'reg') }}</button>
@@ -14,7 +14,7 @@
                         <div class="columns is-multiline is-gapless">
                             <div v-for="(value, index) in metrics" :key="index" class="column is-4">
                                 <div class="column is-4">
-                                    <div :id="index"></div>
+                                    <div :id="index">{{index}}</div>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
 import { settingStore } from '@/stores/settings'
 import ClassificationViewComponent from './classification-view-component.vue'
 import RegressionViewComponent from './regression-view-component.vue'
-import { computed } from "vue";
+import { computed,nextTick} from "vue";
 import { ChartController } from '@/helpers/charts';
 import { removeTable } from '@/helpers/utils'
 
@@ -60,10 +60,10 @@ export default {
 
     },
     setup() {
-        const settings = settingStore()
+        const settings = settingStore();
         const activeResult = computed({
             get: () => settings.getResultTab,
-            set: (value) => settings.setResultActiveTab(value), // Mutate the state properly
+            set: (value) => settings.setResultActiveTab(value),
         });
         return { settings, activeResult }
     },
@@ -133,12 +133,7 @@ export default {
             this.metrics = y;
             this.xTicks = x;
         },
-        draw() {
-            for (const k in this.metrics) {
-                this.chartController.comparison(this.xTicks, this.metrics[k], k, k)
-            }
-        },
-        compareResultsDraw(dataset) {
+        async compareResultsDraw(dataset) {
             let results = [];
             this.compareResults(dataset);
             for (const element of this.settings.getMethodResults) {
@@ -150,14 +145,14 @@ export default {
 
             }
             this.metricsCollection = results;
-
-            setTimeout(() => {
-                this.draw()
-            }, 500);
+            await nextTick();
+            for (const k in this.metrics) {                
+                this.chartController.comparison(this.xTicks, this.metrics[k], k, k)
+            }
         },
-        resize(v) {
+        async resize(v) {
             if (v === 0) {
-                this.compareResultsDraw()
+               await this.compareResultsDraw()
             }
 
             window.dispatchEvent(new Event('resize'));
@@ -174,9 +169,11 @@ export default {
             this.settings.removeResult(id);
 
         },
-        showMethodDetails(id) {
-            alert(id)
-        },
+    },
+    watch:{
+        getMethodResults:async function(){
+            await this.compareResultsDraw();
+        }
     },
     mounted() {
         this.chartController = new ChartController()
