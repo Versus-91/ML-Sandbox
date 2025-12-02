@@ -69,13 +69,10 @@
                     <b-input size="is-small" v-model="numberOfComponents" type="number"></b-input>
                 </b-field>
                 <b-field>
-                    <b-checkbox v-model="useHPC" size="is-small">Use HPC resources</b-checkbox>
-                </b-field>
-                <b-field>
                     <b-button @click="train" size="is-small" icon-pack="fas" icon-left="play" :loading="training"
                         :disabled="!dataframe || modelOption == null">
                         train</b-button>
-                    <button :disabled="!useHPC" class="button is-small" @click="upload()">Upload to HPC</button>
+                    <button :disabled="true" class="button is-small" @click="upload()">Upload to HPC</button>
                 </b-field>
                 <b-loading :is-full-page="false" v-model="training"></b-loading>
             </div>
@@ -269,13 +266,13 @@ export default {
                 let numericColumns = this.settings.items.filter(m => m.selected && m.type === FeatureCategories.Numerical.id).map(m => m.name);
                 const target = this.settings.modelTarget;
                 dataset = handle_missing_values(dataset)
-                dataset = applyDataTransformation(dataset, numericColumns, this.settings.transformationsList);
+                dataset = await applyDataTransformation(dataset, numericColumns, this.settings.transformationsList);
                 if (this.dataScalingBehavior) {
                     let transformations = []
                     for (let i = 0; i < numericColumns.length; i++) {
                         transformations.push({ name: numericColumns[i], scaler: '1' })
                     }
-                    dataset = applyDataTransformation(dataset, numericColumns, transformations);
+                    dataset = await applyDataTransformation(dataset, numericColumns, transformations);
                 }
                 let selected_columns = this.settings.items.filter(m => m.selected).map(m => m.name)
                 const index = selected_columns.findIndex(m => m === target)
@@ -296,13 +293,8 @@ export default {
                         })
                     }
                 }
-
-
                 const targets = filterd_dataset.column(target)
                 filterd_dataset.drop({ columns: target, inplace: true })
-
-
-
                 const cross_validation_setting = this.crossValidationOption;
 
                 [filterd_dataset, categoricalFeatures] = await encode_dataset(filterd_dataset, this.settings.items.filter(m => m.selected).filter(m => m.name !== this.settings.modelTarget).map(m => {

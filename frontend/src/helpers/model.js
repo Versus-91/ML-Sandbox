@@ -101,8 +101,8 @@ plt.show()
         `.trim()
     }
     async visualize(x_test, y_test, uniqueLabels, predictions, encoder) {
-        const danfo = await getDanfo()
-        await getDatatable()
+        const danfo = await getDanfo();
+        await getDatatable();
         const classes = Object.keys(encoder.$labels);
         await this.chartController.plotConfusionMatrix(danfo.tensorflow.tensor(predictions), danfo.tensorflow.tensor(y_test), classes, Object.values(encoder.$labels), this.id);
         predictions_table(x_test, encoder.inverseTransform(y_test), encoder.inverseTransform(predictions), null, this.id);
