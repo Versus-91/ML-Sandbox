@@ -177,10 +177,10 @@
                     <dmensionality-reduction-component :dataframe="this.settings.df"
                         :columns="selectedFeatures"></dmensionality-reduction-component>
                 </b-tab-item>
-                <b-tab-item label="Results Analysis" icon="chart-pie" icon-pack="fas">
+                <b-tab-item label="Evaluation " icon="chart-pie" icon-pack="fas">
                     <results-component ref="results"></results-component>
                 </b-tab-item>
-                <b-tab-item label="Methods Details" icon="list" icon-pack="fas">
+                <b-tab-item label="Methods & Algorithms" icon="list" icon-pack="fas">
 
                     <DocumentationComponent v-if="activeTab == 3" />
                 </b-tab-item>

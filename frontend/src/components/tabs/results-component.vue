@@ -38,7 +38,7 @@
             </b-tab-item>
         </b-tabs>
         <b-message type="is-danger" has-icon icon-pack="fas" class="my-auto" v-else>
-            No result to show.
+            Train a model first.
         </b-message>
     </div>
 
