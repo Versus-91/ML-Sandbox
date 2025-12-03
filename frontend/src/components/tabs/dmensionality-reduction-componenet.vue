@@ -51,20 +51,23 @@
         <div class="message is-info">
             <div class="message-header p-2">t-distributed stochastic neighbor embedding</div>
             <div class="message-body">
-                <b-field grouped style="overflow-x:scroll;">
-                    <b-field label="Number of Components" :label-position="'on-border'">
-                        <b-input v-model="componentsTSNE" size="is-small" type="number"
-                            placeholder="Components"></b-input>
-                    </b-field>
-                    <b-field label="Seed" :label-position="'on-border'">
-                        <b-input v-model="seedTSNE" size="is-small" type="number" placeholder="Seed"></b-input>
-                        <p class="control">
-                            <b-button @click="findTSNE" size="is-small" type="is-info" :loading="loadingTSNE"
-                                label="Fit t-SNE" />
-                        </p>
-                    </b-field>
-                </b-field>
-
+                <div class="columns is-multiline">
+                    <div class="column is-3">
+                        <b-field label="Number of Components" :label-position="'on-border'">
+                            <b-input v-model="componentsTSNE" size="is-small" type="number"
+                                placeholder="Components"></b-input>
+                        </b-field>
+                    </div>
+                    <div class="column is-3">
+                        <b-field label="Seed" :label-position="'on-border'">
+                            <b-input v-model="seedTSNE" size="is-small" type="number" placeholder="Seed"></b-input>
+                        </b-field>
+                    </div>
+                    <div class="column is-3">
+                        <b-button @click="findTSNE" size="is-small" type="is-info" :loading="loadingTSNE"
+                            label="Fit t-SNE" />
+                    </div>
+                </div>
                 <div class="column is-6" id="dimensionality_reduction_panel_tsne">
                     <div id="tsne">
                     </div>
@@ -76,27 +79,37 @@
             <div class="message-header p-2">Autoencoder</div>
             <div class="message-body">
                 <div class="columns is-multiline">
-                    <div class="column is-12" style="overflow-x:scroll;">
-                <b-field grouped>
-                    <b-field expanded>
+                    <div class="column is-3">
                         <b-field label="Hidden layers size" :label-position="'on-border'">
                             <b-input v-model="hiddenLayerSize" size="is-small" type="number"
                                 placeholder="Hidden layer size"></b-input>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
+
                         <b-field label="x axis" :label-position="'on-border'">
                             <b-input v-model="autoEncoderX" size="is-small" type="number"
                                 placeholder="x axis"></b-input>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
+
                         <b-field label="y axis" :label-position="'on-border'">
                             <b-input v-model="autoEncoderY" size="is-small" type="number"
                                 placeholder="y axis"></b-input>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
+
                         <b-field label="iterations" :label-position="'on-border'">
                             <b-input v-model="iterations" size="is-small" type="number"
                                 placeholder="iterations"></b-input>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
+
                         <b-field label="encoder" :label-position="'on-border'">
-                            <b-select v-model="encoderActivationFunction" size="is-small"
+                            <b-select expanded v-model="encoderActivationFunction" size="is-small"
                                 placeholder="Encoder Activation Function">
                                 <option value="linear" id="linear">
                                     linear
@@ -109,8 +122,10 @@
                                 </option>
                             </b-select>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
                         <b-field label="decoder" :label-position="'on-border'">
-                            <b-select size="is-small" v-model="decoderActivationFunction"
+                            <b-select expanded size="is-small" v-model="decoderActivationFunction"
                                 placeholder="Decoder Activation Function">
                                 <option value="linear" id="linear">
                                     linear
@@ -123,6 +138,8 @@
                                 </option>
                             </b-select>
                         </b-field>
+                    </div>
+                    <div class="column is-3">
 
                         <b-field :label-position="'on-border'">
                             <p class="control">
@@ -130,14 +147,12 @@
                                     :loading="loadingAutoEncoder" label="Fit Autoencoder" />
                             </p>
                         </b-field>
-                    </b-field>
-                </b-field>
-            </div>
-                <div class="column is-6" id="dimensionality_reduction_panel_tsne">
-                    <div id="autoencoder" style="height: 300px;">
+                    </div>
+                    <div class="column is-6" id="dimensionality_reduction_panel_tsne">
+                        <div id="autoencoder" style="height: 300px;">
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     </section>
